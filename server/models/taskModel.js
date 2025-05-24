@@ -14,6 +14,7 @@ const taskSchema = new Schema(
       default: "todo",
       enum: ["todo", "in progress", "completed"],
     },
+    hold: String,
     activities: [
       {
         type: {

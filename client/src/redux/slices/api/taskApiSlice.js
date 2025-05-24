@@ -96,6 +96,15 @@ export const postApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    
+    changeTaskHold: builder.mutation({
+      query: (data) => ({
+        url: `${TASKS_URL}/change-holder/${data?.id}`,
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+    }),
 
     changeSubTaskStatus: builder.mutation({
       query: (data) => ({
@@ -121,4 +130,5 @@ export const {
   useGetDasboardStatsQuery,
   useChangeTaskStageMutation,
   useChangeSubTaskStatusMutation,
+  useChangeTaskHoldMutation,
 } = postApiSlice;

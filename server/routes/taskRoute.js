@@ -12,6 +12,7 @@ import {
   updateSubTaskStage,
   updateTask,
   updateTaskStage,
+  updateTaskHolder
 } from "../controllers/taskController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -28,6 +29,7 @@ router.get("/:id", protectRoute, getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/change-stage/:id", protectRoute, updateTaskStage);
+router.put("/change-holder/:id", protectRoute, updateTaskHolder);
 router.put(
   "/change-status/:taskId/:subTaskId",
   protectRoute,

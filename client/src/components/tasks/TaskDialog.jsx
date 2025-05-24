@@ -1,9 +1,10 @@
+import React from 'react';
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment, useState } from "react";
 import { AiTwotoneFolderOpen } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
-import { FaExchangeAlt } from "react-icons/fa";
+import { FaExchangeAlt, FaUsers } from "react-icons/fa";
 import { HiDuplicate } from "react-icons/hi";
 import { MdAdd, MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -11,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   useChangeTaskStageMutation,
+  useChangeTaskHoldMutation,
   useDuplicateTaskMutation,
   useTrashTastMutation,
 } from "../../redux/slices/api/taskApiSlice";
@@ -34,19 +36,15 @@ const CustomTransition = ({ children }) => (
   </Transition>
 );
 
-const ChangeTaskActions = ({ _id, stage }) => {
+const ChangeTaskActions = React.forwardRef(({ _id, stage }, ref) => {
   const [changeStage] = useChangeTaskStageMutation();
 
-  const changeHanlder = async (val) => {
+  const changeHandler = async (val) => {
     try {
-      const data = {
-        id: _id,
-        stage: val,
-      };
+      const data = { id: _id, stage: val };
       const res = await changeStage(data).unwrap();
 
       toast.success(res?.message);
-
       setTimeout(() => {
         window.location.reload();
       }, 500);
@@ -58,31 +56,31 @@ const ChangeTaskActions = ({ _id, stage }) => {
 
   const items = [
     {
-      label: "To-Do",
-      stage: "todo",
+      label: 'To-Do',
+      stage: 'todo',
       icon: <TaskColor className='bg-blue-600' />,
-      onClick: () => changeHanlder("todo"),
+      onClick: () => changeHandler('todo'),
     },
     {
-      label: "In Progress",
-      stage: "in progress",
+      label: 'In Progress',
+      stage: 'in progress',
       icon: <TaskColor className='bg-yellow-600' />,
-      onClick: () => changeHanlder("in progress"),
+      onClick: () => changeHandler('in progress'),
     },
     {
-      label: "Completed",
-      stage: "completed",
+      label: 'Completed',
+      stage: 'completed',
       icon: <TaskColor className='bg-green-600' />,
-      onClick: () => changeHanlder("completed"),
+      onClick: () => changeHandler('completed'),
     },
   ];
 
   return (
-    <>
+    <div ref={ref}>
       <Menu as='div' className='relative inline-block text-left'>
         <Menu.Button
           className={clsx(
-            "inline-flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300"
+            'inline-flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300'
           )}
         >
           <FaExchangeAlt />
@@ -97,10 +95,10 @@ const ChangeTaskActions = ({ _id, stage }) => {
                   {({ active }) => (
                     <button
                       disabled={stage === el.stage}
-                      onClick={el?.onClick}
+                      onClick={el.onClick}
                       className={clsx(
-                        active ? "bg-gray-200 text-gray-900" : "text-gray-900",
-                        "group flex gap-2 w-full items-center rounded-md px-2 py-2 text-sm disabled:opacity-50"
+                        active ? 'bg-gray-200 text-gray-900' : 'text-gray-900',
+                        'group flex gap-2 w-full items-center rounded-md px-2 py-2 text-sm disabled:opacity-50'
                       )}
                     >
                       {el.icon}
@@ -113,9 +111,92 @@ const ChangeTaskActions = ({ _id, stage }) => {
           </Menu.Items>
         </CustomTransition>
       </Menu>
-    </>
+    </div>
   );
-};
+});
+
+
+
+
+
+
+
+
+const ChangeTaskPerson = React.forwardRef(({ _id, task }, ref) => {
+  const [changeHold] = useChangeTaskHoldMutation();
+
+  const changeHolder = async (val) => {
+    try {
+      const data = { id: _id, hold: val };
+      const res = await changeHold(data).unwrap();
+
+      toast.success(res?.message);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.data?.message || err.error);
+    }
+  };
+
+  return (
+    <div ref={ref}>
+      <Menu as='div' className='relative inline-block text-left'>
+        <Menu.Button
+          className={clsx(
+            'inline-flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300'
+          )}
+        >
+          <FaUsers />
+          <span>Change Hold</span>
+        </Menu.Button>
+
+        <CustomTransition>
+          <Menu.Items className='absolute p-4 left-0 mt-2 w-60 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none'>
+            <div className='px-1 py-1 space-y-2'>
+              {task?.team?.length > 0 &&
+                task?.team.map((m) => (
+                  <Menu.Item key={m.name}>
+                    {({ active }) => (
+                      <button
+                        disabled={task.hold === m}
+                        onClick={() => changeHolder(m.name?.toString())}
+                        className={clsx(
+                          active ? 'bg-gray-200 text-gray-900' : 'text-gray-900',
+                          'group flex gap-2 w-full items-center rounded-md px-2 py-2 text-sm disabled:opacity-50'
+                        )}
+                      >
+                        {m.name}
+                      </button>
+                    )}
+                  </Menu.Item>
+                ))}
+            </div>
+          </Menu.Items>
+        </CustomTransition>
+      </Menu>
+    </div>
+  );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default function TaskDialog({ task }) {
   const { user } = useSelector((state) => state.auth);
@@ -222,6 +303,11 @@ export default function TaskDialog({ task }) {
               <div className='px-1 py-1'>
                 <Menu.Item>
                   <ChangeTaskActions id={task._id} {...task} />
+                </Menu.Item>
+              </div>
+              <div className='px-1 py-1'>
+                <Menu.Item>
+                  <ChangeTaskPerson id={task._id} {...task} task={task}/> 
                 </Menu.Item>
               </div>
 

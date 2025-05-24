@@ -180,6 +180,25 @@ const updateTaskStage = asyncHandler(async (req, res) => {
   }
 });
 
+const updateTaskHolder = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { hold } = req.body;
+
+    const task = await Task.findById(id);
+
+    task.hold = hold;
+
+    await task.save();
+
+    res
+      .status(200)
+      .json({ status: true, message: "Task Holder changed successfully." });
+  } catch (error) {
+    return res.status(400).json({ status: false, message: error.message });
+  }
+});
+
 const updateSubTaskStage = asyncHandler(async (req, res) => {
   try {
     const { taskId, subTaskId } = req.params;
@@ -459,4 +478,6 @@ export {
   updateSubTaskStage,
   updateTask,
   updateTaskStage,
+  updateTaskHolder
+
 };

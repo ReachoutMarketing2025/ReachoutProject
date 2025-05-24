@@ -50,6 +50,7 @@ const TaskCard = ({ task }) => {
               <h4 className='text- line-clamp-1 text-black dark:text-white'>
                 {task?.title}
               </h4>
+              <span className='bg-blue-600/10 px-3 py-1 rounded-full text-purple-600 text-sm ml-3'>{task?.hold?task?.hold:"UnKnown"}</span>
             </div>
           </Link>
           <span className='text-sm text-gray-600 dark:text-gray-400'>
